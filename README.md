@@ -6,6 +6,8 @@ in the same room picks it up. Two independent transmitters, two stations, one
 board. It is driven entirely from a web page it serves itself, or from a serial
 console, and it lives in a 3D-printed case whose lid is the antenna.
 
+**[There is a project page with a demo video.](https://garethdavieslondon.github.io/esp32-am-transmitter/)**
+
 ![The transmitter, open](docs/images/tx-case-open-from-above.jpg)
 
 ## Read this before you build one

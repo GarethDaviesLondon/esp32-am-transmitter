@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESP32-S3 AM Transmitter</title>
+<meta name="description" content="An ESP32-S3 plays internet radio over Wi-Fi and re-broadcasts it as an AM longwave carrier, so a vintage radio in the same room can receive it. Open source, GPL-3.0.">
+<meta property="og:title" content="ESP32-S3 AM Transmitter">
+<meta property="og:description" content="Internet radio, re-broadcast as AM longwave for the radio on your shelf. Two transmitters, a web interface, and a printed case whose lid is the antenna.">
+<meta property="og:image" content="https://garethdavieslondon.github.io/esp32-am-transmitter/media/amtx-demo-poster.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📻</text></svg>">
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --line: #e2e0da; --fg: #1b1f24; --dim: #5d6670;
+    --accent: #c2691f; --accent2: #2f6f9e; --warn-bg: #fdf3e0; --warn-line: #e0b871;
+    --warn-fg: #6b4a12; --code-bg: #f2f0ec;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171b; --panel: #1b1f25; --line: #2c323a; --fg: #e8eaed; --dim: #9aa3ad;
+      --accent: #e89a4d; --accent2: #6fb0e0; --warn-bg: #2a2213; --warn-line: #7a5c22;
+      --warn-fg: #f0c987; --code-bg: #232830;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171b; --panel: #1b1f25; --line: #2c323a; --fg: #e8eaed; --dim: #9aa3ad;
+    --accent: #e89a4d; --accent2: #6fb0e0; --warn-bg: #2a2213; --warn-line: #7a5c22;
+    --warn-fg: #f0c987; --code-bg: #232830;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+  header { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .hero { padding: 54px 0 40px; }
+  .eyebrow {
+    color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; margin: 0 0 10px;
+  }
+  h1 { margin: 0 0 14px; font-size: clamp(30px, 5.4vw, 46px); line-height: 1.12; letter-spacing: -.02em; }
+  .lede { font-size: clamp(17px, 2.3vw, 20px); color: var(--dim); margin: 0 0 26px; max-width: 46em; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; padding: 0; list-style: none; }
+  .facts li {
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px;
+    font-size: 13.5px; color: var(--dim); background: var(--bg);
+  }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-block; padding: 11px 18px; border-radius: 7px; text-decoration: none;
+    font-weight: 600; font-size: 15px; border: 1px solid var(--line); color: var(--fg);
+    background: var(--panel);
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #17130d; }
+  .btn:hover { border-color: var(--accent); }
+  section { padding: 44px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: clamp(22px, 3.2vw, 28px); margin: 0 0 8px; letter-spacing: -.01em; }
+  h3 { font-size: 17px; margin: 26px 0 6px; }
+  .sub { color: var(--dim); margin: 0 0 22px; max-width: 46em; }
+  video, .shot { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; background: #000; }
+  /* Photographs and renders arrive at different shapes; a fixed ratio keeps
+     the captions on one line with each other. */
+  .shot { aspect-ratio: 4 / 3; object-fit: cover; }
+  .pair .shot { aspect-ratio: 16 / 10; }
+  .pair { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .renders { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 560px) { .renders { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figcaption { color: var(--dim); font-size: 13.5px; margin-top: 8px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h3 { margin-top: 0; }
+  .card p { margin: 0; color: var(--dim); font-size: 14.5px; }
+  .diagram { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .diagram img { width: 100%; display: block; }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13.5px; line-height: 1.5;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  p code, li code, td code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 13.5px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+  th { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); }
+  .warn {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-left-width: 4px;
+    border-radius: 8px; padding: 16px 18px; color: var(--warn-fg); margin-bottom: 14px;
+  }
+  .warn h3 { margin: 0 0 6px; color: var(--warn-fg); font-size: 16px; }
+  .warn p { margin: 0; font-size: 14.5px; }
+  .state td:first-child { white-space: nowrap; font-weight: 600; }
+  .yes { color: var(--accent2); } .no { color: var(--accent); }
+  footer { padding: 34px 0 60px; color: var(--dim); font-size: 14px; }
+  footer a { color: inherit; }
+  a { color: var(--accent2); }
+  @media (max-width: 640px) { .hero { padding: 36px 0 28px; } section { padding: 34px 0; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hero">
+    <p class="eyebrow">Open source · GPL-3.0 · v1.0</p>
+    <h1>Internet radio, re-broadcast as AM for the radio on your shelf</h1>
+    <p class="lede">
+      An ESP32-S3 streams internet radio over Wi-Fi and transmits it as an
+      amplitude-modulated longwave carrier from a GPIO pin. A 1940s wireless in
+      the same room tunes it in and plays it, through its own dial, its own
+      speaker and its own valves.
+    </p>
+    <ul class="facts">
+      <li>Two independent transmitters</li>
+      <li>200 kHz and 250 kHz by default</li>
+      <li>Web interface and serial console</li>
+      <li>3D-printed case, lid is the antenna</li>
+      <li>One ESP32-S3, two resistors, some wire</li>
+    </ul>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/GarethDaviesLondon/esp32-am-transmitter">Source on GitHub</a>
+      <a class="btn" href="https://github.com/GarethDaviesLondon/esp32-am-transmitter/releases/latest">Download the firmware</a>
+      <a class="btn" href="manuals/build_manual.pdf">Build Manual (PDF)</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <h2>See it working</h2>
+    <p class="sub">
+      Three minutes: the set on the shelf, tuned by hand across the dial, and
+      the web page that decides what it plays.
+    </p>
+    <video controls preload="none" poster="media/amtx-demo-poster.jpg">
+      <source src="media/amtx-demo.mp4" type="video/mp4">
+      Your browser cannot play this video.
+      <a href="media/amtx-demo.mp4">Download it instead.</a>
+    </video>
+  </section>
+
+  <section>
+    <h2>What it actually is</h2>
+    <p class="sub">
+      One GPIO pin, one resistor, five turns of wire, back to ground. Twice,
+      because there are two transmitters sharing nothing but the ground.
+    </p>
+    <!-- Tappable: on a phone the diagram shrinks to the point where the
+         values are hard to read, and opening the SVG on its own lets the
+         browser zoom it properly. -->
+    <a class="diagram" href="images/wiring.svg"><img src="images/wiring.svg" alt="GPIO 4 through a 220 ohm resistor into a five-turn loop and back to ground, and the same again from GPIO 5"></a>
+
+    <div class="grid" style="margin-top: 22px">
+      <div class="card">
+        <h3>Modulation that works</h3>
+        <p>Duty-cycle AM linearised through an arcsine table, because the obvious
+        scheme barely modulates at all. A 20 kHz interrupt writes the duty
+        register; a 6th-order low-pass keeps the transmission inside its channel.</p>
+      </div>
+      <div class="card">
+        <h3>It sounds like radio</h3>
+        <p>A fractional resampler with a fill controller absorbs the drift
+        between the station's clock and this one. A loudness AGC brings stations
+        that differ by 10 dB to within about 2 dB of each other.</p>
+      </div>
+      <div class="card">
+        <h3>Two stations at once</h3>
+        <p>Two decoders, two DSP chains, two carriers, one board. Tune one radio
+        to 200 kHz and another to 250 kHz and they play different things.</p>
+      </div>
+      <div class="card">
+        <h3>Driven from anywhere</h3>
+        <p>A web page it serves itself, and a serial console that can do
+        everything the page can, so a board whose Wi-Fi is wrong is still
+        reachable over USB.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The build</h2>
+    <p class="sub">
+      A Waveshare ESP32-S3-Zero, two 220&nbsp;ohm resistors, 0.3&nbsp;mm
+      enamelled copper wire, four heat-set inserts and about 40&nbsp;g of
+      filament.
+    </p>
+    <div class="grid pair">
+      <figure>
+        <img class="shot" src="images/tx-case-open-from-above.jpg" alt="The case open: the lid with both windings and their resistors, the base with the board">
+        <figcaption>The lid carries both loop windings and their series resistors. The base carries the board.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="images/tx-case-windings-close.jpg" alt="Close view of the two windings on the lid's pillars">
+        <figcaption>Two windings, one per transmitter, separated by a flange on each pillar.</figcaption>
+      </figure>
+    </div>
+
+    <h3>The printed case</h3>
+    <p class="sub">
+      Four corner pillars are the winding former, the lid fixing and the clamp
+      that holds it all together. Every overhang is a 45&nbsp;degree flare, so
+      nothing needs support.
+    </p>
+    <div class="grid renders">
+      <figure><img class="shot" src="images/renders/assembly.jpg" alt="Rendered view of the assembled case"><figcaption>Assembled.</figcaption></figure>
+      <figure><img class="shot" src="images/renders/lid.jpg" alt="Rendered view of the lid with its four pillars"><figcaption>The lid, pillars up, as it prints.</figcaption></figure>
+      <figure><img class="shot" src="images/renders/base.jpg" alt="Rendered view of the base"><figcaption>The base: board slots and the USB opening.</figcaption></figure>
+      <figure><img class="shot" src="images/renders/sprue.jpg" alt="Rendered view of all three parts joined by thin tags"><figcaption>All three on one runner, for a printing service that charges per part.</figcaption></figure>
+    </div>
+    <p style="margin-top:18px">
+      STEP to edit and STL to print are in
+      <a href="https://github.com/GarethDaviesLondon/esp32-am-transmitter/tree/main/case"><code>case/</code></a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Flash one in a minute</h2>
+    <pre><code>pip install esptool
+python -m esptool --chip esp32s3 -p COM5 write_flash 0x0 amtx-v1.0-merged.bin</code></pre>
+    <p class="sub">
+      Then join the <code>AMTX-Setup</code> Wi-Fi network the board raises, and
+      the setup page opens by itself. It comes up playing Radio Swiss Jazz on
+      one transmitter and the BBC World Service on the other.
+    </p>
+    <table>
+      <thead><tr><th>Manual</th><th>For</th></tr></thead>
+      <tbody>
+        <tr><td><a href="manuals/build_manual.pdf">Build</a></td><td>Making one from parts: printing, inserts, winding, wiring, assembly</td></tr>
+        <tr><td><a href="manuals/installation_manual.pdf">Installation</a></td><td>The toolchain, building the firmware from source, flashing</td></tr>
+        <tr><td><a href="manuals/user_manual.pdf">User</a></td><td>Driving it once it runs</td></tr>
+        <tr><td><a href="manuals/technical_manual.pdf">Technical</a></td><td>How the firmware works, for changing it</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Read this before you build one</h2>
+    <div class="warn">
+      <h3>It transmits in a licensed broadcast band</h3>
+      <p>The default carrier is 200 kHz, inside the longwave broadcast band and
+      2 kHz from BBC Radio 4 on 198 kHz. Deliberate radiation there is licensed
+      in the UK and in most other countries, and this project holds no licence.
+      It is built to be heard across a room: an inductive loop beside the
+      receiver, not an antenna. What you radiate, and the rules where you live,
+      are yours to check.</p>
+    </div>
+    <div class="warn">
+      <h3>There is no output filter in this build</h3>
+      <p>A square-wave carrier radiates odd harmonics at 600 kHz, 1 MHz and
+      upward, across the whole medium-wave band. At this power, with the loop
+      beside the receiver, that was judged acceptable by ear — and it has never
+      been measured on a spectrum analyser. Raise the drive, lengthen the
+      antenna or drop the resistor and the harmonics rise with it. The Technical
+      Manual gives a low-pass network to fit if you do.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What has been tested, and what has not</h2>
+    <p class="sub">
+      This project tries to be honest about the difference between built and
+      proven. As of v1.0:
+    </p>
+    <table class="state">
+      <tbody>
+        <tr><td class="yes">Runs</td><td>Two stations playing at once, heard on a receiver, both decoders at full rate with the modulator never starving. Web interface, console, Wi-Fi and diagnostics all used on a real board.</td></tr>
+        <tr><td class="yes">Printed</td><td>The case has been printed and built more than once. The revision published here fixes what the last print got wrong; it has not itself been printed.</td></tr>
+        <tr><td class="no">Untested</td><td>The factory-reset gesture, holding the BOOT button for five seconds. Built, never pressed.</td></tr>
+        <tr><td class="no">Unmeasured</td><td>Nothing has been on a spectrum analyser or a scope. Harmonic content, radiated field strength and modulation depth are all unknown.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<footer class="wrap">
+  <p>
+    GPL-3.0. Source, manuals, geometry and firmware binaries at
+    <a href="https://github.com/GarethDaviesLondon/esp32-am-transmitter">github.com/GarethDaviesLondon/esp32-am-transmitter</a>.
+  </p>
+  <p>
+    The MP3 decoder (libhelix) is fetched by the build and carries its own
+    licence. Board dimensions come from Waveshare's published drawing for the
+    <a href="https://www.waveshare.com/wiki/ESP32-S3-Zero">ESP32-S3-Zero</a>.
+  </p>
+</footer>
+
+</body>
+</html>
