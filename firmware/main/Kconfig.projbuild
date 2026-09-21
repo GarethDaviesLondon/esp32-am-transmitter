@@ -1,0 +1,87 @@
+menu "AM Transmitter"
+
+    config AMTX_WIFI_SSID
+        string "Fallback Wi-Fi SSID"
+        default ""
+        help
+            Used only when NVS holds no saved network. Leave empty and use the
+            AMTX-Setup portal instead. Whatever you put here ends up in
+            sdkconfig, which is gitignored for exactly that reason.
+
+    config AMTX_WIFI_PASS
+        string "Fallback Wi-Fi password"
+        default ""
+
+    config AMTX_STATION_A_NAME
+        string "Transmitter A's starting station: name"
+        default "Radio Swiss Jazz"
+
+    config AMTX_STATION_A_URL
+        string "Transmitter A's starting station: URL"
+        default "http://stream.srg-ssr.ch/m/rsj/mp3_128"
+        help
+            Seeded into the station list on a factory-fresh device and made
+            transmitter A's power-on station. Plain HTTP MP3: the stream
+            client attaches no certificate bundle. Leave empty to seed
+            nothing for A. See docs/design/07_console_and_access.md section 5.
+
+    config AMTX_STATION_B_NAME
+        string "Transmitter B's starting station: name"
+        default "BBC World Service"
+
+    config AMTX_STATION_B_URL
+        string "Transmitter B's starting station: URL"
+        default "http://stream.live.vc.bbcmedia.co.uk/bbc_world_service"
+        help
+            As for transmitter A, seeded second and made transmitter B's
+            power-on station.
+
+    config AMTX_RF_GPIO
+        int "RF carrier output GPIO"
+        default 4
+        range 0 48
+        help
+            Drives the carrier through the output low-pass network. Avoid the
+            strapping pins (0, 3, 45, 46) and the USB pins (19, 20).
+
+    config AMTX_RF_GPIO_B
+        int "Second RF carrier output GPIO"
+        default 5
+        range 0 48
+        help
+            Drives the second carrier through its own output low-pass network.
+            The two carriers are independent transmitters and each needs its
+            own filter: sharing one lets them intermodulate. Same pins to
+            avoid as the first (strapping 0, 3, 45, 46; USB 19, 20).
+
+    config AMTX_FACTORY_BUTTON_GPIO
+        int "Factory reset button GPIO"
+        default 0
+        range 0 48
+        help
+            The BOOT button on an ESP32-S3-Zero, marked B on the silkscreen.
+            Held for the time below while the board is running, it erases
+            everything saved and restarts. Pressed is LOW.
+
+            This is a strapping pin, and holding it through a RESET is what
+            puts the chip into the ROM's download mode instead. That is the
+            ROM's behaviour, not this firmware's, and it is why the gesture
+            here is a long press while running. See design 07 section 7.
+
+    config AMTX_FACTORY_HOLD_MS
+        int "Factory reset hold time (ms)"
+        default 5000
+        range 1000 30000
+        help
+            Longer than an accidental press, shorter than anyone's patience.
+            The console counts down once a second while the button is held.
+
+    config AMTX_LPF_CUTOFF_HZ
+        int "Audio low-pass cutoff (Hz)"
+        default 4500
+        range 1000 9000
+        help
+            Anything above this becomes adjacent-channel splatter. 4500 keeps
+            the transmission inside a 9 kHz channel.
+
+endmenu

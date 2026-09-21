@@ -1,0 +1,15 @@
+dependencies:
+  idf:
+    version: ">=5.1"
+
+  # Fixed-point MP3 decoder. Chosen over a floating-point decoder because the
+  # decode task shares core 1 with nothing but the modulation ISR, and because
+  # helix runs a 128 kbit/s stereo frame in well under its 26 ms budget on an
+  # ESP32-S3. Packaged for the component registry by chmorgan.
+  chmorgan/esp-libhelix-mp3:
+    version: "^1.0.3"
+
+  # mDNS, so the board is reachable at http://amtx.local without anyone
+  # having to find its address. It has no screen to show one on.
+  espressif/mdns:
+    version: "^1.2.0"

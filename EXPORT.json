@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "exported_from_commit": "9020857",
+  "exported_by": "tools/public-export/export_public.py",
+  "held_back": [
+    "docs/design",
+    "docs/registers",
+    "docs/method",
+    "docs/style",
+    "agents",
+    "cad",
+    "designs (source)",
+    "TxCase",
+    "media"
+  ]
+}

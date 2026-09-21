@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" width="920" height="560"
+     font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" role="img"
+     aria-labelledby="title desc">
+  <title id="title">ESP32-S3 AM transmitter wiring, as built</title>
+  <desc id="desc">GPIO 4 goes through a 220 ohm resistor into a five-turn loop and back to
+  the board's ground. GPIO 5 does the same into a second five-turn loop. The two chains
+  share only that ground. No filter is fitted.</desc>
+
+  <style>
+    .bg     { fill: #fbfaf7; }
+    .board  { fill: #14212e; stroke: #0b1620; stroke-width: 2; }
+    .chip   { fill: #24384b; stroke: #46627c; stroke-width: 1.5; }
+    .pad    { fill: #1f3040; stroke: #6d8aa5; stroke-width: 1.5; }
+    .wA     { stroke: #d9822b; stroke-width: 3.6; fill: none; stroke-linecap: round; }
+    .wB     { stroke: #3d86cc; stroke-width: 3.6; fill: none; stroke-linecap: round; }
+    .gnd    { stroke: #55616d; stroke-width: 3.6; fill: none; stroke-linecap: round; }
+    .part   { fill: #ffffff; stroke: #2b3947; stroke-width: 2.4; }
+    .lbl    { fill: #1d2732; font-size: 15.5px; }
+    .sub    { fill: #616d79; font-size: 12.5px; }
+    .val    { fill: #1d2732; font-size: 15px; font-weight: 600; }
+    .pin    { fill: #e8eef4; font-size: 13.5px; font-weight: 600; }
+    .head   { fill: #1d2732; font-size: 20px; font-weight: 600; }
+    .note   { fill: #6b4a12; font-size: 12.8px; }
+    .noteb  { fill: #fdf3e0; stroke: #e0b871; stroke-width: 1.2; }
+    .tagA   { fill: #d9822b; font-size: 13px; font-weight: 600; }
+    .tagB   { fill: #3d86cc; font-size: 13px; font-weight: 600; }
+  </style>
+
+  <rect class="bg" width="920" height="560"/>
+
+  <text class="head" x="40" y="44">AM transmitter: what is wired to what</text>
+  <text class="sub" x="40" y="66">Two independent transmitters, one loop each. They share
+    the board's ground and nothing else.</text>
+
+  <!-- ===================== board ===================== -->
+  <rect class="board" x="40" y="100" width="196" height="360" rx="10"/>
+  <text class="pin" x="138" y="132" text-anchor="middle" font-size="12.5">Waveshare</text>
+  <text class="pin" x="138" y="150" text-anchor="middle" font-size="12.5">ESP32-S3-Zero</text>
+  <rect class="chip" x="86" y="230" width="104" height="86" rx="6"/>
+  <text class="pin" x="138" y="279" text-anchor="middle">ESP32-S3</text>
+  <text class="pin" x="138" y="420" text-anchor="middle" font-size="12px">USB-C 5 V in</text>
+
+  <rect class="pad" x="216" y="157" width="42" height="26" rx="4"/>
+  <text class="pin" x="237" y="175" text-anchor="middle">IO 4</text>
+  <rect class="pad" x="216" y="317" width="42" height="26" rx="4"/>
+  <text class="pin" x="237" y="335" text-anchor="middle">IO 5</text>
+  <rect class="pad" x="216" y="457" width="52" height="26" rx="4"/>
+  <text class="pin" x="242" y="475" text-anchor="middle">GND</text>
+
+  <!-- ===================== chain A ===================== -->
+  <text class="tagA" x="300" y="122">TRANSMITTER A · carrier 200 kHz by default</text>
+
+  <path class="wA" d="M258 170 H 330"/>
+  <rect class="part" x="330" y="152" width="84" height="36" rx="5"/>
+  <text class="val" x="372" y="176" text-anchor="middle">220 Ω</text>
+  <path class="wA" d="M414 170 H 500"/>
+  <!-- five turns, as five humps -->
+  <path class="wA" d="M500 170
+      a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0
+      a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0"/>
+  <path class="wA" d="M740 170 H 800 V 500"/>
+  <text class="lbl" x="620" y="215" text-anchor="middle">Loop A · 5 turns</text>
+  <text class="sub" x="600" y="234" text-anchor="middle">0.3 mm enamelled copper on the
+    lid's pillars, about 56 × 27 mm</text>
+
+  <!-- ===================== chain B ===================== -->
+  <text class="tagB" x="300" y="282">TRANSMITTER B · carrier 250 kHz by default</text>
+
+  <path class="wB" d="M258 330 H 330"/>
+  <rect class="part" x="330" y="312" width="84" height="36" rx="5"/>
+  <text class="val" x="372" y="336" text-anchor="middle">220 Ω</text>
+  <path class="wB" d="M414 330 H 500"/>
+  <path class="wB" d="M500 330
+      a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0
+      a 24 24 0 0 1 48 0 a 24 24 0 0 1 48 0"/>
+  <path class="wB" d="M740 330 H 770 V 500"/>
+  <text class="lbl" x="620" y="375" text-anchor="middle">Loop B · 5 turns</text>
+  <text class="sub" x="620" y="394" text-anchor="middle">the second winding, on the same
+    four pillars</text>
+
+  <!-- ===================== ground ===================== -->
+  <path class="gnd" d="M268 470 H 560"/>
+  <path class="gnd" d="M560 500 H 800"/>
+  <path class="gnd" d="M560 470 V 516"/>
+  <circle cx="770" cy="500" r="4.5" fill="#55616d"/>
+  <circle cx="560" cy="500" r="4.5" fill="#55616d"/>
+  <g class="gnd">
+    <path d="M536 516 H 584"/>
+    <path d="M544 526 H 576"/>
+    <path d="M552 536 H 568"/>
+  </g>
+  <text class="sub" x="596" y="533">board ground: the only connection between the two</text>
+
+  <!-- ===================== note ===================== -->
+  <rect class="noteb" x="40" y="490" width="446" height="52" rx="8"/>
+  <text class="note" x="56" y="511">No output filter is fitted: a square wave at 200 kHz
+    radiates odd</text>
+  <text class="note" x="56" y="529">harmonics across medium wave. Read KI-02 and design
+    03 §4 first.</text>
+</svg>

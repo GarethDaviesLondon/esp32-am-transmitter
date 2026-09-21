@@ -1,0 +1,6 @@
+# Python dependencies for tools/esp-flasher/.
+# Install with:  pip install -r tools/esp-flasher/requirements.txt
+pyserial>=3.5          # port enumeration and the monitor tabs (via tools/esp-serial-monitor)
+esptool>=4.7           # connect, identify, read back and write the flash. v4 and v5 both work:
+                       # the tool spells commands with hyphens on v5 and underscores on v4.
+                       # Everything else is the Python standard library (tkinter).

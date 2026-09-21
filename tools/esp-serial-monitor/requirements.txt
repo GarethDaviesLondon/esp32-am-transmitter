@@ -1,0 +1,5 @@
+# Python dependencies for tools/esp-serial-monitor/.
+# Install with:  pip install -r tools/esp-serial-monitor/requirements.txt
+pyserial>=3.5          # port enumeration (VID/PID, so ESP boards are recognised),
+                       # port I/O, and DTR/RTS control for the auto-reset circuit.
+                       # Everything else is the Python standard library (tkinter).

@@ -1,0 +1,72 @@
+# Target and flash
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# PSRAM is ON. The module is identified: esptool reports
+# "Embedded PSRAM 8MB (AP_3v3)", which is an ESP32-S3R8 with octal PSRAM.
+# That answers docs/design/06_open_questions.md §2.1, which had this open
+# because quad and octal parts need different settings and the wrong choice
+# gives a confusing boot-time failure.
+#
+# One audio chain fits in internal DRAM without this. Two do not: each needs a
+# 64 kB ring buffer, a decoder instance and a sample FIFO, against roughly
+# 100 kB of internal heap free. The 20 kHz modulation ISR and its tables stay
+# in IRAM and DRAM regardless; nothing on the real-time path moves to PSRAM,
+# which is reached over SPI and must never be in an ISR's way.
+#
+# IGNORE_NOTFOUND keeps a board without PSRAM booting instead of failing at
+# startup, so this default stays safe on other modules.
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_TYPE_AUTO=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_IGNORE_NOTFOUND=y
+
+# Let mbedTLS allocate from PSRAM.
+#
+# By default (CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC) mbedTLS is confined to
+# internal RAM, and a TLS session wants a 16 kB input buffer plus an output
+# buffer plus session state. That fitted when there was one audio chain. It
+# stopped fitting once there were two: two decode contexts are 28 kB of static
+# internal DRAM between them, the second FIFO and duty table another 5 kB, and
+# PSRAM itself reserves 32 kB of internal memory for DMA. The symptom was
+# mbedtls_ssl_setup returning -0x7F00, MBEDTLS_ERR_SSL_ALLOC_FAILED, which
+# surfaced as station discovery failing with ESP_ERR_HTTP_CONNECT while the
+# reported free heap still read 8 MB, because that figure counts PSRAM.
+#
+# TLS buffers are not touched by DMA, so PSRAM is a perfectly good home for
+# them. The handshake is marginally slower and nobody will notice.
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y
+
+# Run flat out. The modulation ISR fires every 50 us and the decoder has a
+# hard 26 ms budget per MP3 frame; there is no headroom to give away.
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_FREERTOS_HZ=1000
+CONFIG_PM_ENABLE=n
+
+# THE MODULATION ISR MUST NOT TOUCH FLASH.
+# These two are what make that true. Without them the gptimer ISR lives in
+# flash, and the first cache miss during an SPI flash operation takes the
+# carrier with it. See agents/roles/profiles/embedded-esp32.md.
+CONFIG_GPTIMER_ISR_IRAM_SAFE=y
+CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM=y
+CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM=y
+
+# Wi-Fi: buffers over latency. The stream is one long TCP read and the
+# ring buffer absorbs jitter, so bigger windows are free quality.
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=16
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=32
+CONFIG_ESP_WIFI_AMPDU_RX_ENABLED=y
+CONFIG_LWIP_TCP_WND_DEFAULT=32768
+CONFIG_LWIP_TCP_RECVMBOX_SIZE=32
+
+# HTTP server: the page is one request, the API is polled once a second.
+CONFIG_HTTPD_MAX_REQ_HDR_LEN=1024
+CONFIG_HTTPD_MAX_URI_LEN=512
+
+# Keep the log usable on a board whose only diagnostic is the serial port.
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y

@@ -1,0 +1,5 @@
+# Python dependencies for tools/amtx-programmer/.
+# Install with:  pip install -r tools/amtx-programmer/requirements.txt
+-r ../esp-flasher/requirements.txt   # pyserial and esptool: the programmer is the flasher plus a tab
+pytest>=7                            # only for the tests: python -m pytest tools/amtx-programmer
+                                     # Everything else is the Python standard library (tkinter).
