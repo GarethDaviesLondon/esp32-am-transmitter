@@ -67,7 +67,13 @@ Use your own port (`/dev/ttyACM0` and similar elsewhere), and the board's own
 USB-C socket rather than a separate serial adapter.
 
 Then power it up, join the Wi-Fi network **`AMTX-Setup`** it raises, and follow
-the page that opens. Full walk-through in the **Build Manual**.
+the page that opens.
+
+If that was too terse, **[docs/manuals/quick_start.pdf](docs/manuals/quick_start.pdf)**
+is the same journey with every step spelled out: installing Python, which of
+the board's two USB sockets to use, the flashing tool in `tools/esp-flasher`,
+proving the firmware is running by typing `help` at the `amtx>` console, and
+both ways of putting the board on your network. No compiler needed.
 
 ## Build one
 
@@ -77,6 +83,7 @@ wiring, assembly, flashing, first boot, and what to do when it does not work.
 
 | Manual | For |
 | ------ | --- |
+| [Quick Start](docs/manuals/quick_start.pdf) | Release zip to a transmitter on the air, no toolchain. Start here |
 | [Build](docs/manuals/build_manual.pdf) | Making one from parts |
 | [Installation](docs/manuals/installation_manual.pdf) | Toolchain, building the firmware from source, flashing |
 | [User](docs/manuals/user_manual.pdf) | Driving it once it runs |

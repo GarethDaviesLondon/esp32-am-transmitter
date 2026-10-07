@@ -121,6 +121,7 @@
     <div class="cta">
       <a class="btn primary" href="https://github.com/GarethDaviesLondon/esp32-am-transmitter">Source on GitHub</a>
       <a class="btn" href="https://github.com/GarethDaviesLondon/esp32-am-transmitter/releases/latest">Download the firmware</a>
+      <a class="btn" href="manuals/quick_start.pdf">Quick Start (PDF)</a>
       <a class="btn" href="manuals/build_manual.pdf">Build Manual (PDF)</a>
     </div>
   </div>
@@ -224,9 +225,19 @@ python -m esptool --chip esp32s3 -p COM5 write_flash 0x0 amtx-v1.0-merged.bin</c
       the setup page opens by itself. It comes up playing Radio Swiss Jazz on
       one transmitter and the BBC World Service on the other.
     </p>
+    <p class="sub">
+      That is the whole thing in one line, if you already know your way around
+      a serial port. If you would rather be walked through it, the
+      <a href="manuals/quick_start.pdf">Quick Start</a> does the same job from
+      the release zip: installing Python, finding the right USB socket, the
+      flashing tool in <code>tools/esp-flasher</code>, proving the firmware is
+      alive with <code>help</code>, and both ways of putting the board on
+      Wi-Fi. No compiler needed.
+    </p>
     <table>
       <thead><tr><th>Manual</th><th>For</th></tr></thead>
       <tbody>
+        <tr><td><a href="manuals/quick_start.pdf">Quick Start</a></td><td>Release zip to a transmitter on the air, with no toolchain. Start here</td></tr>
         <tr><td><a href="manuals/build_manual.pdf">Build</a></td><td>Making one from parts: printing, inserts, winding, wiring, assembly</td></tr>
         <tr><td><a href="manuals/installation_manual.pdf">Installation</a></td><td>The toolchain, building the firmware from source, flashing</td></tr>
         <tr><td><a href="manuals/user_manual.pdf">User</a></td><td>Driving it once it runs</td></tr>
